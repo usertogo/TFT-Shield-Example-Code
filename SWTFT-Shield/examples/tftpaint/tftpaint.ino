@@ -4,7 +4,8 @@
 #include <SWTFT.h> // Hardware-specific library
 #include <TouchScreen.h>
 
-
+// original from https://github.com/Smoke-And-Wires/TFT-Shield-Example-Code
+// modified for ili9325 - apparently some X and y touch coordinates where mixed up as well as the directions!
 
 
 #define YP A1  // must be an analog pin, use "An" notation!
@@ -82,6 +83,7 @@ void loop()
   // commented definition instead.
   // Point p = ts.getPoint();
   TSPoint p = ts.getPoint();
+  TSPoint pt;
   digitalWrite(13, LOW);
 
   // if sharing pins, you'll need to fix the directions of the touchscreen pins
@@ -94,11 +96,11 @@ void loop()
   // pressure of 0 means no pressing!
 
   if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
-    /*
+    
     Serial.print("X = "); Serial.print(p.x);
     Serial.print("\tY = "); Serial.print(p.y);
     Serial.print("\tPressure = "); Serial.println(p.z);
-    */
+    
     
     if (p.y < (TS_MINY-5)) {
       Serial.println("erase");
@@ -106,32 +108,32 @@ void loop()
       tft.fillRect(0, BOXSIZE, tft.width(), tft.height()-BOXSIZE, BLACK);
     }
     // scale from 0->1023 to tft.width
-    p.x = tft.width()-(map(p.x, TS_MINX, TS_MAXX, tft.width(), 0));
-    p.y = tft.height()-(map(p.y, TS_MINY, TS_MAXY, tft.height(), 0));
-    /*
-    Serial.print("("); Serial.print(p.x);
-    Serial.print(", "); Serial.print(p.y);
+    pt.x = (map(p.y, TS_MINX, TS_MAXX, tft.width(), 0));
+    pt.y = (map(p.x, TS_MINY, TS_MAXY, tft.height(), 0));
+//    /*
+    Serial.print("("); Serial.print(pt.x);
+    Serial.print(", "); Serial.print(pt.y);
     Serial.println(")");
-    */
-    if (p.y < BOXSIZE) {
+//    */
+    if (pt.y < BOXSIZE) {
        oldcolor = currentcolor;
 
-       if (p.x < BOXSIZE) { 
+       if (pt.x < BOXSIZE) { 
          currentcolor = RED; 
          tft.drawRect(0, 0, BOXSIZE, BOXSIZE, WHITE);
-       } else if (p.x < BOXSIZE*2) {
+       } else if (pt.x < BOXSIZE*2) {
          currentcolor = YELLOW;
          tft.drawRect(BOXSIZE, 0, BOXSIZE, BOXSIZE, WHITE);
-       } else if (p.x < BOXSIZE*3) {
+       } else if (pt.x < BOXSIZE*3) {
          currentcolor = GREEN;
          tft.drawRect(BOXSIZE*2, 0, BOXSIZE, BOXSIZE, WHITE);
-       } else if (p.x < BOXSIZE*4) {
+       } else if (pt.x < BOXSIZE*4) {
          currentcolor = CYAN;
          tft.drawRect(BOXSIZE*3, 0, BOXSIZE, BOXSIZE, WHITE);
-       } else if (p.x < BOXSIZE*5) {
+       } else if (pt.x < BOXSIZE*5) {
          currentcolor = BLUE;
          tft.drawRect(BOXSIZE*4, 0, BOXSIZE, BOXSIZE, WHITE);
-       } else if (p.x < BOXSIZE*6) {
+       } else if (pt.x < BOXSIZE*6) {
          currentcolor = MAGENTA;
          tft.drawRect(BOXSIZE*5, 0, BOXSIZE, BOXSIZE, WHITE);
        }
@@ -145,8 +147,8 @@ void loop()
           if (oldcolor == MAGENTA) tft.fillRect(BOXSIZE*5, 0, BOXSIZE, BOXSIZE, MAGENTA);
        }
     }
-    if (((p.y-PENRADIUS) > BOXSIZE) && ((p.y+PENRADIUS) < tft.height())) {
-      tft.fillCircle(p.x, p.y, PENRADIUS, currentcolor);
+    if (((pt.y-PENRADIUS) > BOXSIZE) && ((pt.y+PENRADIUS) < tft.height())) {
+      tft.fillCircle(pt.x, pt.y, PENRADIUS, currentcolor);
     }
   }
 }
